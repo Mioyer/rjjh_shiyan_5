@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>环保知识库 - 智能环保系统</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Font Awesome 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* 知识库页面特定样式 */
+        .knowledge-container {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .sidebar {
+            width: 250px;
+            flex-shrink: 0;
+        }
+        
+        .content {
+            flex: 1;
+        }
+        
+        .menu-list {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        
+        .menu-title {
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #eee;
+            font-weight: bold;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .menu-items {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .menu-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .menu-item:last-child {
+            border-bottom: none;
+            border-radius: 0 0 8px 8px;
+        }
+        
+        .menu-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .menu-item.active {
+            background-color: #e8f5e9;
+            font-weight: bold;
+            border-left: 3px solid #2e8b57;
+        }
+        
+        .menu-item i {
+            margin-right: 10px;
+            color: #2e8b57;
+        }
+        
+        .search-box-container {
+            margin-bottom: 20px;
+        }
+        
+        .search-box-container .search-box {
+            width: 100%;
+            margin: 0;
+        }
+        
+        .tutorial-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .tutorial-card {
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .tutorial-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .tutorial-image {
+            height: 160px;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+        }
+        
+        .tutorial-image i {
+            font-size: 3rem;
+            color: #2e8b57;
+        }
+        
+        .tutorial-content {
+            padding: 15px;
+        }
+        
+        .tutorial-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .tutorial-summary {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 15px;
+            height: 60px;
+            overflow: hidden;
+        }
+        
+        .videos-container {
+            margin-bottom: 30px;
+        }
+        
+        .video-player {
+            background-color: #000;
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 ratio */
+            height: 0;
+            overflow: hidden;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .video-player iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .video-list {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+        
+        .video-item {
+            flex: 0 0 200px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .video-item:hover {
+            transform: scale(1.05);
+        }
+        
+        .video-thumbnail {
+            height: 110px;
+            background-color: #222;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .video-thumbnail i {
+            font-size: 2rem;
+            color: rgba(255,255,255,0.8);
+        }
+        
+        .video-duration {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background-color: rgba(0,0,0,0.7);
+            color: white;
+            padding: 2px 5px;
+            border-radius: 2px;
+            font-size: 0.7rem;
+        }
+        
+        .video-info {
+            padding: 10px;
+            background-color: #fff;
+        }
+        
+        .video-title {
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .video-author {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .policy-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        
+        .policy-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .policy-details {
+            padding: 10px 0;
+        }
+        
+        .policy-info {
+            display: flex;
+            gap: 20px;
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .policy-text {
+            line-height: 1.8;
+        }
+        
+        .policy-section {
+            margin-bottom: 20px;
+        }
+        
+        .policy-section-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .knowledge-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+            }
+            
+            .tutorial-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <nav class="navbar">
+        <a href="index.html" class="logo">
+            <i class="fas fa-leaf"></i>
+            <span>SmartEco</span>
+        </a>
+        
+        <div class="search-box">
+            <input type="text" placeholder="搜索知识库（如：政策法规、垃圾分类）">
+            <button type="button">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+        
+        <div class="user-actions">
+            <div class="user-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="dropdown-menu">
+                <a href="auth.html">登录/注册</a>
+                <a href="#">个人中心</a>
+                <a href="#">退出</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <h1>环保知识库</h1>
+        <p>探索环保知识，了解政策法规，学习环保技能</p>
+        
+        <div class="knowledge-container">
+            <!-- 左侧导航 -->
+            <div class="sidebar">
+                <!-- 全文检索框 -->
+                <div class="search-box-container">
+                    <div class="search-box">
+                        <input type="text" placeholder="搜索全文...">
+                        <button type="button">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 政策法规菜单 -->
+                <div class="menu-list">
+                    <div class="menu-title">
+                        <i class="fas fa-gavel"></i> 政策法规
+                    </div>
+                    <ul class="menu-items">
+                        <li class="menu-item active" onclick="showPolicy('national')">
+                            <i class="fas fa-flag"></i> 国家政策
+                        </li>
+                        <li class="menu-item" onclick="showPolicy('local')">
+                            <i class="fas fa-map-marker-alt"></i> 地方条例
+                        </li>
+                        <li class="menu-item" onclick="showPolicy('international')">
+                            <i class="fas fa-globe"></i> 国际公约
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- 图文教程分类 -->
+                <div class="menu-list">
+                    <div class="menu-title">
+                        <i class="fas fa-book-open"></i> 图文教程
+                    </div>
+                    <ul class="menu-items">
+                        <li class="menu-item" onclick="showTutorials('all')">
+                            <i class="fas fa-th-list"></i> 全部教程
+                        </li>
+                        <li class="menu-item" onclick="showTutorials('recycle')">
+                            <i class="fas fa-recycle"></i> 垃圾分类
+                        </li>
+                        <li class="menu-item" onclick="showTutorials('energy')">
+                            <i class="fas fa-bolt"></i> 节能减排
+                        </li>
+                        <li class="menu-item" onclick="showTutorials('daily')">
+                            <i class="fas fa-home"></i> 日常环保
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- 视频资源分类 -->
+                <div class="menu-list">
+                    <div class="menu-title">
+                        <i class="fas fa-video"></i> 视频资源
+                    </div>
+                    <ul class="menu-items">
+                        <li class="menu-item" onclick="showVideos('all')">
+                            <i class="fas fa-th-list"></i> 全部视频
+                        </li>
+                        <li class="menu-item" onclick="showVideos('lectures')">
+                            <i class="fas fa-chalkboard-teacher"></i> 环保讲座
+                        </li>
+                        <li class="menu-item" onclick="showVideos('tutorials')">
+                            <i class="fas fa-play-circle"></i> 操作教程
+                        </li>
+                        <li class="menu-item" onclick="showVideos('documentaries')">
+                            <i class="fas fa-film"></i> 环保纪录片
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- 右侧内容 -->
+            <div class="content">
+                <!-- 政策法规内容 -->
+                <div id="policy-section" class="policy-content">
+                    <div class="policy-title">《中华人民共和国固体废物污染环境防治法》</div>
+                    
+                    <div class="policy-info">
+                        <div>发布部门：全国人大常委会</div>
+                        <div>生效日期：2020年9月1日</div>
+                        <div>文件编号：中华人民共和国主席令第四十三号</div>
+                    </div>
+                    
+                    <div class="policy-text">
+                        <div class="policy-section">
+                            <div class="policy-section-title">第一章 总则</div>
+                            <p>第一条 为了保护和改善生态环境，防治固体废物污染环境，保障公众健康，维护生态安全，推进生态文明建设，促进经济社会可持续发展，制定本法。</p>
+                            <p>第二条 固体废物污染环境的防治适用本法。</p>
+                            <p>固体废物污染海洋环境的防治和放射性固体废物污染环境的防治不适用本法。</p>
+                        </div>
+                        
+                        <div class="policy-section">
+                            <div class="policy-section-title">第二章 监督管理</div>
+                            <p>第八条 各级人民政府应当加强对固体废物污染环境防治工作的领导，组织、协调、督促有关部门依法履行固体废物污染环境防治监督管理职责。</p>
+                            <p>省、自治区、直辖市之间可以协商建立跨行政区域固体废物污染环境的联防联控机制，统筹规划制定、设施建设、固体废物转移等工作。</p>
+                        </div>
+                        
+                        <div class="policy-section">
+                            <div class="policy-section-title">第三章 产生者责任延伸制度</div>
+                            <p>第十五条 国家实行生产者责任延伸制度。</p>
+                            <p>生产者应当考虑其产品在全生命周期中对环境的影响，优先选择有利于节约资源、保护环境的设计方案，组织对其产品的回收利用，并对其产品的废弃物处置承担责任。</p>
+                        </div>
+                        
+                        <a href="#" class="btn" style="margin-top: 20px;">下载完整文件</a>
+                    </div>
+                </div>
+                
+                <!-- 图文教程内容 -->
+                <div id="tutorials-section" style="display: none;">
+                    <h2>环保图文教程</h2>
+                    
+                    <div class="tutorial-cards">
+                        <div class="tutorial-card">
+                            <div class="tutorial-image">
+                                <i class="fas fa-recycle"></i>
+                            </div>
+                            <div class="tutorial-content">
+                                <div class="tutorial-title">垃圾分类四步法</div>
+                                <div class="tutorial-summary">图文并茂讲解垃圾分类标准，通过四个简单步骤快速学会垃圾分类的方法，适合所有家庭成员</div>
+                                <a href="#" class="btn btn-secondary">阅读全文</a>
+                            </div>
+                        </div>
+                        
+                        <div class="tutorial-card">
+                            <div class="tutorial-image">
+                                <i class="fas fa-water"></i>
+                            </div>
+                            <div class="tutorial-content">
+                                <div class="tutorial-title">家庭用水节约指南</div>
+                                <div class="tutorial-summary">介绍10种简单有效的家庭节水方法，每天可节约用水最高达30%，减少水费支出的同时保护水资源</div>
+                                <a href="#" class="btn btn-secondary">阅读全文</a>
+                            </div>
+                        </div>
+                        
+                        <div class="tutorial-card">
+                            <div class="tutorial-image">
+                                <i class="fas fa-seedling"></i>
+                            </div>
+                            <div class="tutorial-content">
+                                <div class="tutorial-title">阳台蔬菜种植入门</div>
+                                <div class="tutorial-summary">教你如何在有限的阳台空间种植有机蔬菜，从选盆、选土到播种、收获的全过程详细指导</div>
+                                <a href="#" class="btn btn-secondary">阅读全文</a>
+                            </div>
+                        </div>
+                        
+                        <div class="tutorial-card">
+                            <div class="tutorial-image">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <div class="tutorial-content">
+                                <div class="tutorial-title">家庭节能攻略</div>
+                                <div class="tutorial-summary">分享家庭节能省电的实用技巧，通过简单调整家电使用习惯，每月可节约电费超过15%</div>
+                                <a href="#" class="btn btn-secondary">阅读全文</a>
+                            </div>
+                        </div>
+                        
+                        <div class="tutorial-card">
+                            <div class="tutorial-image">
+                                <i class="fas fa-shopping-bag"></i>
+                            </div>
+                            <div class="tutorial-content">
+                                <div class="tutorial-title">低碳购物指南</div>
+                                <div class="tutorial-summary">告诉你如何在日常购物中做出更环保的选择，减少碳足迹，选择更可持续的产品和包装</div>
+                                <a href="#" class="btn btn-secondary">阅读全文</a>
+                            </div>
+                        </div>
+                        
+                        <div class="tutorial-card">
+                            <div class="tutorial-image">
+                                <i class="fas fa-bicycle"></i>
+                            </div>
+                            <div class="tutorial-content">
+                                <div class="tutorial-title">绿色出行方案</div>
+                                <div class="tutorial-summary">介绍多种低碳出行方式，包括公共交通、共享单车和拼车等，以及它们对减少碳排放的贡献</div>
+                                <a href="#" class="btn btn-secondary">阅读全文</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 视频资源内容 -->
+                <div id="videos-section" style="display: none;">
+                    <h2>环保视频资源</h2>
+                    
+                    <!-- 视频播放器 -->
+                    <div class="video-player">
+                        <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="示例视频" allowfullscreen></iframe>
+                    </div>
+                    
+                    <!-- 推荐视频列表 -->
+                    <h3>推荐视频</h3>
+                    <div class="video-list">
+                        <div class="video-item" onclick="playVideo('video1')">
+                            <div class="video-thumbnail">
+                                <i class="fas fa-play-circle"></i>
+                                <div class="video-duration">12:34</div>
+                            </div>
+                            <div class="video-info">
+                                <div class="video-title">垃圾分类详解</div>
+                                <div class="video-author">环保科普频道</div>
+                            </div>
+                        </div>
+                        
+                        <div class="video-item" onclick="playVideo('video2')">
+                            <div class="video-thumbnail">
+                                <i class="fas fa-play-circle"></i>
+                                <div class="video-duration">08:25</div>
+                            </div>
+                            <div class="video-info">
+                                <div class="video-title">家庭节能窍门</div>
+                                <div class="video-author">绿色生活</div>
+                            </div>
+                        </div>
+                        
+                        <div class="video-item" onclick="playVideo('video3')">
+                            <div class="video-thumbnail">
+                                <i class="fas fa-play-circle"></i>
+                                <div class="video-duration">15:46</div>
+                            </div>
+                            <div class="video-info">
+                                <div class="video-title">塑料污染与解决方案</div>
+                                <div class="video-author">环境科学讲堂</div>
+                            </div>
+                        </div>
+                        
+                        <div class="video-item" onclick="playVideo('video4')">
+                            <div class="video-thumbnail">
+                                <i class="fas fa-play-circle"></i>
+                                <div class="video-duration">22:10</div>
+                            </div>
+                            <div class="video-info">
+                                <div class="video-title">气候变化的影响</div>
+                                <div class="video-author">地球卫士</div>
+                            </div>
+                        </div>
+                        
+                        <div class="video-item" onclick="playVideo('video5')">
+                            <div class="video-thumbnail">
+                                <i class="fas fa-play-circle"></i>
+                                <div class="video-duration">05:30</div>
+                            </div>
+                            <div class="video-info">
+                                <div class="video-title">自制环保清洁剂</div>
+                                <div class="video-author">DIY达人</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 智能环保系统. 保留所有权利.</p>
+        </div>
+    </footer>
+    
+    <!-- JavaScript 文件 -->
+    <script src="js/main.js"></script>
+    <script>
+        // 激活菜单项
+        function activateMenuItem(element) {
+            // 移除所有活动状态
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // 添加活动状态到当前项
+            element.classList.add('active');
+        }
+        
+        // 显示政策法规
+        function showPolicy(type) {
+            // 隐藏其他部分
+            document.getElementById('tutorials-section').style.display = 'none';
+            document.getElementById('videos-section').style.display = 'none';
+            document.getElementById('policy-section').style.display = 'block';
+            
+            // 激活菜单
+            activateMenuItem(document.querySelector(`.menu-item[onclick="showPolicy('${type}')"]`));
+            
+            // 根据政策类型加载不同内容
+            let policyTitle, policyDept, policyDate, policyContent;
+            
+            switch (type) {
+                case 'national':
+                    policyTitle = '《中华人民共和国固体废物污染环境防治法》';
+                    policyDept = '全国人大常委会';
+                    policyDate = '2020年9月1日';
+                    // 内容已在HTML中
+                    break;
+                case 'local':
+                    policyTitle = '《北京市生活垃圾管理条例》';
+                    policyDept = '北京市人大常委会';
+                    policyDate = '2020年5月1日';
+                    alert('正在加载地方条例内容...');
+                    break;
+                case 'international':
+                    policyTitle = '《巴黎气候协定》';
+                    policyDept = '联合国气候变化框架公约';
+                    policyDate = '2016年11月4日';
+                    alert('正在加载国际公约内容...');
+                    break;
+            }
+            
+            // 更新政策标题和信息
+            if (type !== 'national') {
+                document.querySelector('.policy-title').textContent = policyTitle;
+                document.querySelector('.policy-info').innerHTML = `
+                    <div>发布部门：${policyDept}</div>
+                    <div>生效日期：${policyDate}</div>
+                    <div>文件编号：-</div>
+                `;
+            }
+        }
+        
+        // 显示图文教程
+        function showTutorials(category) {
+            // 隐藏其他部分
+            document.getElementById('policy-section').style.display = 'none';
+            document.getElementById('videos-section').style.display = 'none';
+            document.getElementById('tutorials-section').style.display = 'block';
+            
+            // 激活菜单
+            activateMenuItem(document.querySelector(`.menu-item[onclick="showTutorials('${category}')"]`));
+            
+            // 根据分类筛选教程
+            alert(`正在加载${category === 'all' ? '全部' : category}图文教程...`);
+        }
+        
+        // 显示视频资源
+        function showVideos(category) {
+            // 隐藏其他部分
+            document.getElementById('policy-section').style.display = 'none';
+            document.getElementById('tutorials-section').style.display = 'none';
+            document.getElementById('videos-section').style.display = 'block';
+            
+            // 激活菜单
+            activateMenuItem(document.querySelector(`.menu-item[onclick="showVideos('${category}')"]`));
+            
+            // 根据分类筛选视频
+            alert(`正在加载${category === 'all' ? '全部' : category}视频资源...`);
+        }
+        
+        // 播放视频
+        function playVideo(videoId) {
+            alert(`正在加载视频：${videoId}`);
+            // 实际应用中这里应该更改视频播放器的src属性
+        }
+    </script>
+</body>
+</html> 

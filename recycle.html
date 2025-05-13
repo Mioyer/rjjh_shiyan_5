@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能垃圾分类识别 - 智能环保系统</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Font Awesome 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* 垃圾分类识别页面特定样式 */
+        .upload-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            margin-bottom: 2rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .upload-area:hover {
+            border-color: #2e8b57;
+            background-color: #f0f8f0;
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #2e8b57;
+        }
+        
+        .upload-text {
+            margin-bottom: 1.5rem;
+            color: #666;
+        }
+        
+        .upload-buttons {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .preview-container {
+            margin-top: 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .image-preview {
+            width: 100%;
+            max-width: 500px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none;
+        }
+        
+        .video-container {
+            width: 100%;
+            max-width: 500px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none;
+        }
+        
+        #cameraVideo {
+            width: 100%;
+            background-color: #333;
+            border-radius: 8px;
+        }
+        
+        .camera-controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
+            gap: 10px;
+        }
+        
+        .result-container {
+            display: none;
+            margin-top: 2rem;
+        }
+        
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .result-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            background-color: #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .result-icon {
+            font-size: 2rem;
+            margin-right: 15px;
+            width: 50px;
+            text-align: center;
+        }
+        
+        .result-content {
+            flex: 1;
+        }
+        
+        .result-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .result-description {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .stats-table {
+            width: 100%;
+            margin-top: 1.5rem;
+        }
+        
+        .stats-table th {
+            text-align: left;
+            background-color: #f8f9fa;
+        }
+        
+        .confidence-bar {
+            height: 8px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            position: relative;
+            margin-top: 5px;
+        }
+        
+        .confidence-level {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background-color: #2e8b57;
+            border-radius: 4px;
+        }
+        
+        .feedback-form {
+            display: none;
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .preview-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .upload-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <nav class="navbar">
+        <a href="index.html" class="logo">
+            <i class="fas fa-leaf"></i>
+            <span>SmartEco</span>
+        </a>
+        
+        <div class="search-box">
+            <input type="text" placeholder="搜索关键词（如：可回收物、厨余垃圾）">
+            <button type="button">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+        
+        <div class="user-actions">
+            <div class="user-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="dropdown-menu">
+                <a href="auth.html">登录/注册</a>
+                <a href="#">个人中心</a>
+                <a href="#">退出</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <h1>智能垃圾分类识别</h1>
+        <p>上传垃圾图片或启动摄像头，系统将自动识别垃圾类别并给出处理建议</p>
+        
+        <!-- 上传区域 -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-upload"></i> 识别区域
+            </div>
+            <div class="card-body">
+                <div class="upload-area" id="dropArea">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <div class="upload-text">
+                        请上传垃圾图片或视频，或启动摄像头进行实时识别
+                    </div>
+                    <div class="upload-buttons">
+                        <label for="fileInput" class="btn">
+                            <i class="fas fa-file-upload"></i> 选择文件
+                        </label>
+                        <input type="file" id="fileInput" class="file-input" accept="image/*,video/*" onChange="handleFileUpload(this)">
+                        
+                        <button id="cameraBtn" class="btn" onclick="toggleCamera()">
+                            <i class="fas fa-camera"></i> 启动摄像头
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="preview-container">
+                    <img id="imagePreview" class="image-preview" alt="预览图片">
+                    
+                    <div id="videoContainer" class="video-container">
+                        <video id="cameraVideo" autoplay playsinline></video>
+                        <div class="camera-controls">
+                            <button id="captureBtn" class="btn" onclick="captureImage()">
+                                <i class="fas fa-camera"></i> 拍照识别
+                            </button>
+                            <button id="stopCameraBtn" class="btn btn-secondary" onclick="toggleCamera()" style="display: none;">
+                                <i class="fas fa-stop"></i> 关闭摄像头
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 识别结果展示区 -->
+        <div id="resultContainer" class="result-container">
+            <div class="card">
+                <div class="card-header">
+                    <div class="result-header">
+                        <span><i class="fas fa-tasks"></i> 识别结果</span>
+                        <button class="btn" onclick="recognize()">
+                            <i class="fas fa-redo"></i> 重新识别
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- 主要垃圾分类结果 -->
+                    <div class="result-item">
+                        <div class="result-icon" style="color: #dc3545;">
+                            <i class="fas fa-skull-crossbones"></i>
+                        </div>
+                        <div class="result-content">
+                            <div class="result-title">有害垃圾</div>
+                            <div class="result-description">
+                                检测到电池等有害物品，请按照有害垃圾处理方式处理
+                            </div>
+                            <div class="confidence-bar">
+                                <div class="confidence-level" style="width: 92%;"></div>
+                            </div>
+                            <small>置信度: 92%</small>
+                        </div>
+                    </div>
+                    
+                    <!-- 操作建议 -->
+                    <div class="alert alert-success" style="margin-top: 15px;">
+                        <strong>✅ 处理建议：</strong> 有害垃圾请投入红色垃圾桶，并确保电池等物品完好无损，防止泄漏
+                    </div>
+                    
+                    <!-- 分类统计表 -->
+                    <h3 style="margin-top: 20px;">详细识别结果</h3>
+                    <div class="table-responsive">
+                        <table class="stats-table">
+                            <thead>
+                                <tr>
+                                    <th>类别</th>
+                                    <th>数量</th>
+                                    <th>占比</th>
+                                    <th>置信度</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>电池（有害垃圾）</td>
+                                    <td>2</td>
+                                    <td>40%</td>
+                                    <td>92%</td>
+                                </tr>
+                                <tr>
+                                    <td>纸张（可回收物）</td>
+                                    <td>2</td>
+                                    <td>40%</td>
+                                    <td>88%</td>
+                                </tr>
+                                <tr>
+                                    <td>塑料包装（可回收物）</td>
+                                    <td>1</td>
+                                    <td>20%</td>
+                                    <td>85%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- 反馈按钮 -->
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="btn btn-secondary" onclick="showFeedbackForm()">
+                            <i class="fas fa-edit"></i> 纠正识别结果
+                        </button>
+                    </div>
+                    
+                    <!-- 反馈表单 -->
+                    <div id="feedbackForm" class="feedback-form">
+                        <h3>纠正识别结果</h3>
+                        <p>请选择正确的垃圾分类类型：</p>
+                        
+                        <div class="form-group">
+                            <label>
+                                <input type="radio" name="correct-type" value="recyclable"> 可回收物
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="radio" name="correct-type" value="harmful"> 有害垃圾
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="radio" name="correct-type" value="kitchen"> 厨余垃圾
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="radio" name="correct-type" value="other"> 其他垃圾
+                            </label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="feedback-comment">补充说明（可选）：</label>
+                            <textarea id="feedback-comment" class="form-control" rows="3" placeholder="请输入您的补充说明..."></textarea>
+                        </div>
+                        
+                        <div style="text-align: right;">
+                            <button class="btn btn-secondary" onclick="cancelFeedback()">取消</button>
+                            <button class="btn" onclick="submitFeedback()">提交反馈</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 智能环保系统. 保留所有权利.</p>
+        </div>
+    </footer>
+    
+    <!-- JavaScript 文件 -->
+    <script src="js/main.js"></script>
+    <script>
+        // 处理文件上传
+        function handleFileUpload(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                
+                // 关闭摄像头（如果开启）
+                if (document.getElementById('stopCameraBtn').style.display !== 'none') {
+                    toggleCamera();
+                }
+                
+                // 检查文件类型（图片/视频）
+                if (file.type.startsWith('image/')) {
+                    // 预览图片
+                    previewImage(input, 'imagePreview');
+                    document.getElementById('imagePreview').style.display = 'block';
+                    // 用定时器模拟处理时间
+                    setTimeout(() => {
+                        showResults();
+                    }, 1500);
+                    
+                } else if (file.type.startsWith('video/')) {
+                    alert('视频文件上传成功，正在处理...');
+                    // 这里可以添加视频预览和处理逻辑
+                    setTimeout(() => {
+                        showResults();
+                    }, 2000);
+                    
+                } else {
+                    alert('请上传图片或视频文件');
+                }
+            }
+        }
+        
+        // 拖拽上传
+        const dropArea = document.getElementById('dropArea');
+        
+        dropArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropArea.style.borderColor = '#2e8b57';
+            dropArea.style.backgroundColor = '#f0f8f0';
+        });
+        
+        dropArea.addEventListener('dragleave', () => {
+            dropArea.style.borderColor = '#ddd';
+            dropArea.style.backgroundColor = '#f9f9f9';
+        });
+        
+        dropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropArea.style.borderColor = '#ddd';
+            dropArea.style.backgroundColor = '#f9f9f9';
+            
+            if (e.dataTransfer.files.length) {
+                document.getElementById('fileInput').files = e.dataTransfer.files;
+                handleFileUpload(document.getElementById('fileInput'));
+            }
+        });
+        
+        // 切换摄像头
+        let cameraActive = false;
+        
+        function toggleCamera() {
+            if (cameraActive) {
+                // 关闭摄像头
+                stopCamera('cameraVideo');
+                document.getElementById('videoContainer').style.display = 'none';
+                document.getElementById('stopCameraBtn').style.display = 'none';
+                document.getElementById('cameraBtn').innerHTML = '<i class="fas fa-camera"></i> 启动摄像头';
+                cameraActive = false;
+            } else {
+                // 启动摄像头
+                document.getElementById('videoContainer').style.display = 'block';
+                document.getElementById('imagePreview').style.display = 'none';
+                document.getElementById('stopCameraBtn').style.display = 'inline-block';
+                document.getElementById('cameraBtn').innerHTML = '<i class="fas fa-camera"></i> 重启摄像头';
+                startCamera('cameraVideo');
+                cameraActive = true;
+            }
+        }
+        
+        // 拍照识别
+        function captureImage() {
+            // 模拟拍照和处理
+            alert('已拍照，正在识别...');
+            // 用定时器模拟处理时间
+            setTimeout(() => {
+                showResults();
+            }, 1500);
+        }
+        
+        // 重新识别
+        function recognize() {
+            alert('正在重新识别...');
+            // 用定时器模拟处理时间
+            setTimeout(() => {
+                alert('已完成重新识别！');
+            }, 1000);
+        }
+        
+        // 显示识别结果
+        function showResults() {
+            document.getElementById('resultContainer').style.display = 'block';
+            // 滚动到结果区域
+            document.getElementById('resultContainer').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // 显示反馈表单
+        function showFeedbackForm() {
+            document.getElementById('feedbackForm').style.display = 'block';
+        }
+        
+        // 取消反馈
+        function cancelFeedback() {
+            document.getElementById('feedbackForm').style.display = 'none';
+        }
+        
+        // 提交反馈
+        function submitFeedback() {
+            const selectedType = document.querySelector('input[name="correct-type"]:checked');
+            
+            if (!selectedType) {
+                alert('请选择正确的垃圾分类类型');
+                return;
+            }
+            
+            const type = selectedType.value;
+            const comment = document.getElementById('feedback-comment').value;
+            
+            alert('感谢您的反馈！您的纠正将帮助我们改进识别算法。');
+            document.getElementById('feedbackForm').style.display = 'none';
+            
+            // 实际应用中这里应该发送反馈数据到服务器
+        }
+    </script>
+</body>
+</html> 
